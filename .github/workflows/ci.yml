@@ -37,6 +37,12 @@ jobs:
           cd MLProject
           RUN_ID=$(ls mlruns/0 | grep -v meta.yaml | tail -n 1)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          
+      - name: Upload to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-artifacts
+          path: MLProject/mlruns
 
       - name: Build Docker Model
         run: |
