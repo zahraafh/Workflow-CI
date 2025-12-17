@@ -26,13 +26,17 @@ jobs:
           mlflow run . --env-manager=local
 
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: |
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login \
+            -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker image with MLflow
         run: |
           cd MLProject
+          RUN_ID=$(mlflow runs list --max-results 1 | tail -n 1 | awk '{print $1}')
+          echo "Using RUN_ID=$RUN_ID"
           mlflow models build-docker \
-            -m models:/model \
+            -m runs:/$RUN_ID/model \
             -n ${{ secrets.DOCKER_USERNAME }}/telco-churn-mlflow
 
       - name: Push Docker image
